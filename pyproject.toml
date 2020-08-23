@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "wan-shi-tong"
+name = "wan_shi_tong"
 version = "0.1.0"
 description = "CVE/CPE project"
 authors = ["Noland Seigler"]
@@ -9,10 +9,14 @@ python = "^3.7"
 flask = "^1.1.2"
 dash = "^1.14.0"
 pandas = "^1.1.1"
+python-dotenv = "^0.14.0"
+Flask-SQLAlchemy = "^2.4.4"
+pg8000 = "^1.16.5"
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.6.0"
 black = "^19.10b0"
+pytest = "^6.0.1"
 
 [build-system]
 requires = ["poetry>=0.12"]
