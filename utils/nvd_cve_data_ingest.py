@@ -121,9 +121,18 @@ def write_all_cve_json_zip_to_db():
     Searches cve_data directory for all files with .json.zip in file name.
     For each file found it extracts the .zip, opens file, reads in json, parses json to create CVE object, writes CVE object as record in cve table.
     """
-    for file in os.listdir(cve_data_dir):
-        if file.endswith(".json.zip"):
-            write_cve_json_to_db(cve_json_zip_file_path=os.path.join(cve_data_dir, file))
+    if CVE.query.limit(1).all() is None:
+        print("Writing initial CVEs to db from zip.")
+        current_year = int(datetime.date.today().strftime("%Y"))
+        # write records for each cve in each yearly cve zip
+        for year in range(2002, current_year+1):
+            zip_file_name = f"nvdcve-1.1-{year}.json.zip"
+            zip_file_path = cve_data_dir / zip_file_name
+
+            # extracts zip to json and writes cves to db
+            write_cve_json_to_db(cve_json_zip_file_path=zip_file_path)
+    else:
+        print("CVE table has been hydrated with initial CVEs.")
 
 
 
