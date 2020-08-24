@@ -1,7 +1,7 @@
 import os
 from config import project_root
 
-_ = project_root
+cve_data_dir = project_root / "cve_data"
 
 db_user = os.environ["DB_USER"]
 db_password = os.environ["DB_PASSWORD"]

@@ -45,14 +45,14 @@ class CVE(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     cve_id = db.Column(db.String(25), unique=True, nullable=False)
     description = db.Column(db.Text, nullable=False)
-    cvss_v3_base_score = db.Column(db.Integer, nullable=True)
-    cvss_v3_base_severity = db.Column(db.String(25), nullable=True)
-    cvss_v3_impact_score = db.Column(db.Integer, nullable=True)
-    cvss_v2_base_score = db.Column(db.Integer, nullable=False)
-    cvss_v2_severity = db.Column(db.String(25), nullable=False)
-    cvss_v2_impact_score = db.Column(db.Integer, nullable=False)
+    cvss_v3_base_score = db.Column(db.Integer)
+    cvss_v3_base_severity = db.Column(db.String(25))
+    cvss_v3_impact_score = db.Column(db.Integer)
+    cvss_v2_base_score = db.Column(db.Integer)
+    cvss_v2_severity = db.Column(db.String(25))
+    cvss_v2_impact_score = db.Column(db.Integer)
     published_date = db.Column(db.DateTime, nullable=False)
-    last_modified_date = db.Column(db.DateTime, nullable=True)
+    last_modified_date = db.Column(db.DateTime)
     full_cve_json = db.Column(db.JSON, nullable=False)
     record_creation_date = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
 
@@ -63,6 +63,14 @@ class CVE(db.Model):
     def save(self):
         db.session.add(self)
         db.session.commit()
+
+    @staticmethod
+    def is_record_present(nvd_cve_id):
+        """
+        Return true if a record in the table contains the nvd_cve_id
+        """
+        result = CVE.query.filter_by(cve_id=nvd_cve_id).scalar()
+        return result is not None
 
     def __repr__(self):
         return '<User %r>' % self.username

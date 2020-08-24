@@ -133,3 +133,4 @@ dmypy.json
 
 .vscode/
 .env-no-git
+cve_data/
