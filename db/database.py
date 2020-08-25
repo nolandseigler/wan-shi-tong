@@ -77,7 +77,7 @@ class CVE(db.Model):
         """
         Return result set of all records with input cve_id
         """
-        results_set = CVE.query.filter_by(cve_id=nvd_cve_id).all()
+        result_set = CVE.query.filter_by(cve_id=nvd_cve_id).all()
         return result_set
 
     @staticmethod
@@ -86,7 +86,7 @@ class CVE(db.Model):
         Return cve with the most recent last_modified_date.
         """
         
-        results_set = self.get_records_by_cve_id(nvd_cve_id)
+        result_set = CVE.get_records_by_cve_id(nvd_cve_id)
 
         last_modified_record = None
 

@@ -2,6 +2,7 @@ import datetime
 import json
 import os
 from pathlib import Path
+# import pytz
 import requests
 import time
 import zipfile
@@ -83,8 +84,33 @@ def write_cve_json_to_db(cve_json_zip_file_path):
         db_cve_last_modified_date = datetime.datetime.min
         if db_cve:
             db_cve_last_modified_date = db_cve.last_modified_date
+        # date string example:  "2010-12-16T05:00Z"
+        date_string = record_last_modified_date
+        date_string_split_list = date_string.split("-")
 
-        if record_last_modified_date > db_cve_last_modified_date:
+        year = int(date_string_split_list[0])
+        month = int(date_string_split_list[1])
+
+        extract_list = date_string_split_list[2].replace("T", "-T-").split("-")
+
+        day = int(extract_list[0])
+        time_split = extract_list[2].replace("Z", "").split(":")
+        hour = int(time_split[0])
+        minute = int(time_split[1])
+
+        record_last_modified_datetime = datetime.datetime(
+            year, 
+            month, 
+            day, 
+            hour,
+            minute,
+            # offset-naive or offset-aware...that is the question
+            # tzinfo=pytz.UTC
+            tzinfo=None
+        )
+
+
+        if record_last_modified_datetime > db_cve_last_modified_date:
             record_cve_id = cve_id
             record_description = cve_item["description"]["description_data"][0]["value"]
             # some older records do not have cvss v3 metrics
