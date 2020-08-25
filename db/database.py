@@ -72,6 +72,34 @@ class CVE(db.Model):
         result = CVE.query.filter_by(cve_id=nvd_cve_id).scalar()
         return result is not None
 
+    @staticmethod
+    def get_records_by_cve_id(nvd_cve_id):
+        """
+        Return result set of all records with input cve_id
+        """
+        results_set = CVE.query.filter_by(cve_id=nvd_cve_id).all()
+        return result_set
+
+    @staticmethod
+    def get_last_modified_record_by_cve_id(nvd_cve_id):
+        """
+        Return cve with the most recent last_modified_date.
+        """
+        
+        results_set = self.get_records_by_cve_id(nvd_cve_id)
+
+        last_modified_record = None
+
+
+        for record in result_set:
+            if last_modified_record is None:
+                last_modified_record = record
+            elif record.last_modified_date > last_modified_record:
+                last_modified_record = record
+
+        return last_modified_record
+
+
     def __repr__(self):
         return '<User %r>' % self.username
 

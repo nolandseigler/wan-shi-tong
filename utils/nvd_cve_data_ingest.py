@@ -72,45 +72,57 @@ def write_cve_json_to_db(cve_json_zip_file_path):
     for item in cve_data["CVE_Items"]:
         cve_item = item["cve"]
         cve_id = cve_item["CVE_data_meta"]["ID"]
-        record_cve_id = cve_id
-        record_description = cve_item["description"]["description_data"][0]["value"]
-        # some older records do not have cvss v3 metrics
-        if item["impact"].get("baseMetricV3"):
-            record_cvss_v3_base_score = item["impact"]["baseMetricV3"]["cvssV3"]["baseScore"]
-            record_cvss_v3_base_severity = item["impact"]["baseMetricV3"]["cvssV3"]["baseSeverity"]
-            record_cvss_v3_impact_score = item["impact"]["baseMetricV3"]["impactScore"]
-        else:
-            record_cvss_v3_base_score = None
-            record_cvss_v3_base_severity = None
-            record_cvss_v3_impact_score = None
-
-        if item["impact"].get("baseMetricV2"):
-            record_cvss_v2_base_score = item["impact"]["baseMetricV2"]["cvssV2"]["baseScore"]
-            record_cvss_v2_severity = item["impact"]["baseMetricV2"]["severity"]
-            record_cvss_v2_impact_score = item["impact"]["baseMetricV2"]["impactScore"]
-        else:
-            record_cvss_v2_base_score = None
-            record_cvss_v2_severity = None
-            record_cvss_v2_impact_score = None
-
-        record_published_date = item["publishedDate"]
         record_last_modified_date = item["lastModifiedDate"]
-        record_full_cve_json = item
 
-        cve_to_write = CVE(
-            cve_id = record_cve_id,
-            description = record_description,
-            cvss_v3_base_score = record_cvss_v3_base_score,
-            cvss_v3_base_severity = record_cvss_v3_base_severity,
-            cvss_v3_impact_score = record_cvss_v3_impact_score,
-            cvss_v2_base_score = record_cvss_v2_base_score,
-            cvss_v2_severity = record_cvss_v2_severity,
-            cvss_v2_impact_score = record_cvss_v2_impact_score,
-            published_date = record_published_date,
-            last_modified_date = record_last_modified_date,
-            full_cve_json = record_full_cve_json
-        )
-        cve_to_write.save()
+        # cve records are written from json zip files by year beginning with 2002 file(contains pre-2002 also) and ending with
+        # the most recent json zip file from the current year.
+        # this means that we will write multiple records for each cve if there are more than one.
+        # for updates to prevent rewrites we check the last_modified_date and compare it to the most recent last_modified_date from table records
+        # this ensures on initial hydration that all records are written but on updates multiple duplicate records are not ingested.
+        db_cve = CVE.get_last_modified_record_by_cve_id(nvd_cve_id=cve_id)
+        db_cve_last_modified_date = datetime.datetime.min
+        if db_cve:
+            db_cve_last_modified_date = db_cve.last_modified_date
+
+        if record_last_modified_date > db_cve_last_modified_date:
+            record_cve_id = cve_id
+            record_description = cve_item["description"]["description_data"][0]["value"]
+            # some older records do not have cvss v3 metrics
+            if item["impact"].get("baseMetricV3"):
+                record_cvss_v3_base_score = item["impact"]["baseMetricV3"]["cvssV3"]["baseScore"]
+                record_cvss_v3_base_severity = item["impact"]["baseMetricV3"]["cvssV3"]["baseSeverity"]
+                record_cvss_v3_impact_score = item["impact"]["baseMetricV3"]["impactScore"]
+            else:
+                record_cvss_v3_base_score = None
+                record_cvss_v3_base_severity = None
+                record_cvss_v3_impact_score = None
+
+            if item["impact"].get("baseMetricV2"):
+                record_cvss_v2_base_score = item["impact"]["baseMetricV2"]["cvssV2"]["baseScore"]
+                record_cvss_v2_severity = item["impact"]["baseMetricV2"]["severity"]
+                record_cvss_v2_impact_score = item["impact"]["baseMetricV2"]["impactScore"]
+            else:
+                record_cvss_v2_base_score = None
+                record_cvss_v2_severity = None
+                record_cvss_v2_impact_score = None
+
+            record_published_date = item["publishedDate"]
+            record_full_cve_json = item
+
+            cve_to_write = CVE(
+                cve_id = record_cve_id,
+                description = record_description,
+                cvss_v3_base_score = record_cvss_v3_base_score,
+                cvss_v3_base_severity = record_cvss_v3_base_severity,
+                cvss_v3_impact_score = record_cvss_v3_impact_score,
+                cvss_v2_base_score = record_cvss_v2_base_score,
+                cvss_v2_severity = record_cvss_v2_severity,
+                cvss_v2_impact_score = record_cvss_v2_impact_score,
+                published_date = record_published_date,
+                last_modified_date = record_last_modified_date,
+                full_cve_json = record_full_cve_json
+            )
+            cve_to_write.save()
 
     os.remove(unzipped_file_path)
 
@@ -135,6 +147,16 @@ def write_all_cve_json_zip_to_db():
 def download_and_hydrate_cve():
     download_all_cve_json()
     write_all_cve_json_zip_to_db()
+
+def ensure_modified_cve_json_is_updated():
+    """
+    download the meta file for the modified json cve feed.
+    if lastModifiedDate > today:
+        - remove old modified zip
+        - download from modified feed
+    """
+    pass
+
 
 
 
