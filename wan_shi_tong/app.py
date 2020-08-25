@@ -7,7 +7,7 @@ import plotly.express as px
 import pandas as pd
 
 from db.database import init_db, db
-from utils.nvd_cve_data_ingest import write_all_cve_json_zip_to_db
+from utils.nvd_cve_data_ingest import download_and_hydrate_cve
 from wan_shi_tong.dash_init import register_dash
 
 from pathlib import Path
@@ -19,7 +19,7 @@ def create_app(config_name: str):
     app = Flask(app_name, instance_relative_config=True)
     with app.app_context():
         init_db(app)
-        write_all_cve_json_zip_to_db()
+        download_and_hydrate_cve()
     register_dash(flask_app_name=app_name, flask_app=app)
 
     return app
