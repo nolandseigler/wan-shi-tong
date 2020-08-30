@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 # import pytz
 import requests
+from requests.exceptions import HTTPError
 import time
 import zipfile
 
@@ -174,14 +175,87 @@ def download_and_hydrate_cve():
     download_all_cve_json()
     write_all_cve_json_zip_to_db()
 
-def ensure_modified_cve_json_is_updated():
+
+def is_cve_modified_feed_updated():
     """
-    download the meta file for the modified json cve feed.
-    if lastModifiedDate > today:
-        - remove old modified zip
-        - download from modified feed
+    Checks if modified cve feed has been updated since our last pull of the modified feed.
+    Tasks:
+        - Download the meta file.
+        - Retrieve the value for key "lastModifiedDate"
+        - Convert that string to datetime.datetime
+        - Get the time our last modified zip was modified.
+            - os.path.getmtime(path)
+        - If lastModifedDate is more recent than our local files last mtime then return True
+        - Else return False
+
+    Download url for meta file: 
+    https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-modified.meta
+
+    Output: bool
+        True if update is required
     """
-    pass
+    base_url = "https://nvd.nist.gov/feeds/json/cve/1.1"
+    meta_path = "nvdcve-1.1-modified.meta"
+
+    try:
+        response = requests.get(f"{base_url}/{meta_path}")
+        # If the response was successful, no Exception will be raised
+        response.raise_for_status()
+        response_text = response.text
+        # TODO: Find a better way to create a datetime.datetime
+        last_modified_split_list = response_text.split("\r")[0]
+        last_modified_split_1 = last_modified_split_list.split(":")[1].split("T")
+        last_modified_date_split = last_modified_split_1[0].split("-")
+        last_modified_year = last_modified_date_split[0]
+        last_modified_month = last_modified_date_split[1]
+        last_modified_day = last_modified_date_split[2]
+        last_modified_time = last_modified_split_1[1] + ":" + last_modified_split_list.split(":")[2]
+        last_modified_time_split = last_modified_time.split(":")
+        last_modified_hour = last_modified_time_split[0]
+        last_modified_minute = last_modified_time_split[1]
+
+        last_modified_datetime_obj = datetime.datetime(year=int(last_modified_year), month=int(last_modified_month), day=int(last_modified_day),
+        hour=int(last_modified_hour), minute=int(last_modified_minute))
+
+        # TODO: ^ Find a better way to create a datetime.datetime
+        # nvdcve-1.1-modified.json.zip
+        modified_cve_path = f"nvdcve-1.1-modified.json.zip"
+        download_url = f"{base_url}/{modified_cve_path}"
+
+        zip_file_name = modified_cve_path
+        zip_file_path = cve_data_dir / zip_file_name
+
+        if os.path.isfile(zip_file_path):
+            modified_zip_modified_time = os.path.getmtime(zip_file_path)
+            return last_modified_datetime_obj > modified_zip_modified_time
+        else:
+            return True
+
+    except HTTPError as http_err:
+        print(f'HTTP error occurred: {http_err}')
+    except Exception as err:
+        print(f'Other error occurred: {err}')
+
+
+def ensure_cve_modified_feed_is_updated():
+    """
+    If update is available:
+        download zip and write cves to cve table.
+    """
+    if is_cve_modified_feed_updated():
+        base_url = "https://nvd.nist.gov/feeds/json/cve/1.1"
+        modified_cve_path = f"nvdcve-1.1-modified.json.zip"
+        download_url = f"{base_url}/{modified_cve_path}"
+
+        print(f"Downloading zip file from '{download_url}'")
+        response = requests.get(download_url, allow_redirects=True)
+        zip_file_path = cve_data_dir / modified_cve_path
+        open(f"{zip_file_path}", "wb").write(response.content)
+
+        write_cve_json_to_db(zip_file_path)
+    else:
+        print("CVE modified feed has not been updated since last download.")
+
 
 
 
