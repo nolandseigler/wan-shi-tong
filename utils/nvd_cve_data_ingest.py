@@ -226,7 +226,7 @@ def is_cve_modified_feed_updated():
         zip_file_path = cve_data_dir / zip_file_name
 
         if os.path.isfile(zip_file_path):
-            modified_zip_modified_time = os.path.getmtime(zip_file_path)
+            modified_zip_modified_time = datetime.datetime.fromtimestamp(os.path.getmtime(zip_file_path))
             return last_modified_datetime_obj > modified_zip_modified_time
         else:
             return True
