@@ -1,6 +1,7 @@
 import os
 from config import project_root
 
+cpe_data_dir = project_root / "cpe_data"
 cve_data_dir = project_root / "cve_data"
 
 db_user = os.environ["DB_USER"]

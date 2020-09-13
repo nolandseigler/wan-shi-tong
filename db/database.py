@@ -88,18 +88,63 @@ class CVE(db.Model):
         
         result_set = CVE.get_records_by_cve_id(nvd_cve_id)
 
-        last_modified_record = None
+        if result_set:
+            last_modified_record = result_set[0]
 
+            for record in result_set:
+                if last_modified_record is None:
+                    last_modified_record = record
 
-        for record in result_set:
-            if last_modified_record is None:
-                last_modified_record = record
-            elif record.last_modified_date > last_modified_record:
-                last_modified_record = record
+                elif record.last_modified_date > last_modified_record.last_modified_date:
+                    last_modified_record = record
+    
+        else:
+            last_modified_record = None
 
         return last_modified_record
 
 
     def __repr__(self):
-        return '<User %r>' % self.username
+        return '<CVE %r>' % self.cve_id
+
+
+
+class CPE_Match(db.Model):
+    
+    """
+    JSON schema
+        {
+            "cpe23Uri" : "cpe:2.3:a:\\$0.99_kindle_books_project:\\$0.99_kindle_books:6:*:*:*:*:android:*:*",
+            "cpe_name" : 
+                [ 
+                    {
+                    "cpe23Uri" : "cpe:2.3:a:\\$0.99_kindle_books_project:\\$0.99_kindle_books:6:*:*:*:*:android:*:*"
+                    } 
+                ]
+        }
+    This model represents a single `match` from the `matches` list in nvdcpematch-1.0.json.
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    cpe_23_uri = db.Column(db.String, nullable=False)
+    cpe_name = db.Column(db.Text, nullable=True) # This is a list of dicts that we will turn into a comma sep string on model creation.
+    full_cpe_match_json = db.Column(db.JSON, nullable=False)
+    record_creation_date = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
+
+    __tablename__ = "cpe_match"
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    @staticmethod
+    def get_records_by_cpe_23_uri(cpe_23_uri):
+        """
+        Return result set of all records with input cpe_23_uri
+        """
+        result_set = CPE_Match.query.filter_by(cpe_23_uri=cpe_23_uri).all()
+        return result_set
+        
+
+    def __repr__(self):
+        return '<CPE_Match %r>' % self.cpe_23_uri
 

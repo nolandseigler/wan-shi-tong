@@ -137,17 +137,17 @@ def write_cve_json_to_db(cve_json_zip_file_path):
             record_full_cve_json = item
 
             cve_to_write = CVE(
-                cve_id = record_cve_id,
-                description = record_description,
-                cvss_v3_base_score = record_cvss_v3_base_score,
-                cvss_v3_base_severity = record_cvss_v3_base_severity,
-                cvss_v3_impact_score = record_cvss_v3_impact_score,
-                cvss_v2_base_score = record_cvss_v2_base_score,
-                cvss_v2_severity = record_cvss_v2_severity,
-                cvss_v2_impact_score = record_cvss_v2_impact_score,
-                published_date = record_published_date,
-                last_modified_date = record_last_modified_date,
-                full_cve_json = record_full_cve_json
+                cve_id=record_cve_id,
+                description=record_description,
+                cvss_v3_base_score=record_cvss_v3_base_score,
+                cvss_v3_base_severity=record_cvss_v3_base_severity,
+                cvss_v3_impact_score=record_cvss_v3_impact_score,
+                cvss_v2_base_score=record_cvss_v2_base_score,
+                cvss_v2_severity=record_cvss_v2_severity,
+                cvss_v2_impact_score=record_cvss_v2_impact_score,
+                published_date=record_published_date,
+                last_modified_date=record_last_modified_date,
+                full_cve_json=record_full_cve_json
             )
             cve_to_write.save()
 
