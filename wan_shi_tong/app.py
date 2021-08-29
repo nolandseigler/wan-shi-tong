@@ -17,10 +17,10 @@ app_name = __name__
 def create_app(config_name: str):
 
     app = Flask(app_name, instance_relative_config=True)
-    with app.app_context():
-        init_db(app)
-        download_and_hydrate_cve()
-        ensure_cve_modified_feed_is_updated()
+    
+    init_db(app)
+    # download_and_hydrate_cve()
+    # ensure_cve_modified_feed_is_updated()
     register_dash(flask_app_name=app_name, flask_app=app)
 
     return app

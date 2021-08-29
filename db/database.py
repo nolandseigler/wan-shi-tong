@@ -1,10 +1,15 @@
 import datetime
+
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from env_vars import db_uri
 
 db = SQLAlchemy()
 
-def init_db(app):
+def init_db(app=None):
+    if app is None:
+        # Create flask application for db to use app context
+        app = Flask(__name__)
     db_config_dict = {
         "pool_pre_ping": True,
         "pool_size": 5,
@@ -12,11 +17,12 @@ def init_db(app):
         "pool_recycle": 3600,
         "pool_timeout": 30
     }
-    app.config["SQLALCHEMY_DATABASE_URI"] = db_uri
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = db_config_dict
-    db.init_app(app)
-    db.create_all()
+    with app.app_context():
+        app.config["SQLALCHEMY_DATABASE_URI"] = db_uri
+        app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+        app.config["SQLALCHEMY_ENGINE_OPTIONS"] = db_config_dict
+        db.init_app(app)
+        db.create_all()
 
 
 

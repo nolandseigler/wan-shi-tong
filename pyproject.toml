@@ -13,6 +13,7 @@ python-dotenv = "^0.14.0"
 Flask-SQLAlchemy = "^2.4.4"
 pg8000 = "^1.16.5"
 requests = "^2.24.0"
+prefect = "^0.15.4"
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.6.0"
