@@ -261,7 +261,7 @@ def get_cve_query_df_with_columns(col_names_list=None):
     else:
         entities_list = [entities_dict[col_name] for col_name in col_names_list]
 
-    query_statement = CVE.query.order_by(CVE.published_date.desc()).with_entities(*entities_list).statement
+    query_statement = CVE.query.order_by(CVE.published_date.asc()).with_entities(*entities_list).statement
 
     return pd.read_sql(query_statement, db.engine)
 
