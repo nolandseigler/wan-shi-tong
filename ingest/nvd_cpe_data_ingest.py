@@ -95,12 +95,12 @@ def write_cpe_match_json_to_db(cpe_match_json_zip_file_path):
     for match_object in cpe_data["matches"]:
         if match_object["cpe_name"]:
             cpe_name = ",".join(match_object["cpe_name"])
-        else 
+        else:
             cpe_name = None
 
         cpe_match_to_write = CPE_Match(
-            cpe_23_uri=match_object["cpe23Uri"]
-            cpe_name=cpe_name
+            cpe_23_uri=match_object["cpe23Uri"],
+            cpe_name=cpe_name,
             full_cpe_match_json=match_object
         )
         cpe_match_to_write.save()
