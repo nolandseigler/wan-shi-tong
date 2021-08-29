@@ -19,8 +19,6 @@ def create_app(config_name: str):
     app = Flask(app_name, instance_relative_config=True)
     
     init_db(app)
-    # download_and_hydrate_cve()
-    # ensure_cve_modified_feed_is_updated()
     register_dash(flask_app_name=app_name, flask_app=app)
 
     return app

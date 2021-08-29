@@ -63,6 +63,7 @@ def extract_zip(zip_file_path, directory_to_extract_to):
 
 def write_cve_json_to_db(cve_json_zip_file_path):
     """
+    TODO: This needs a massive overhaul. The full db takes about 2 hours to hydrate.
     Write all cves in a json file to db and delete JSON file.
     This is okay because we currently maintain the zip file.
     This is a function that accesses the database so it must be called with the app.app_context()
@@ -204,7 +205,7 @@ def write_cve_json_to_db(cve_json_zip_file_path):
                 record_base_metric_v2_obtain_all_privilege = item["impact"]["baseMetricV2"]["obtainAllPrivilege"]
                 record_base_metric_v2_obtain_user_privilege = item["impact"]["baseMetricV2"]["obtainUserPrivilege"]
                 record_base_metric_v2_obtain_other_privilege = item["impact"]["baseMetricV2"]["obtainOtherPrivilege"]
-                record_base_metric_v2_user_interaction_required = item["impact"]["baseMetricV2"]["userInteractionRequired"]
+                record_base_metric_v2_user_interaction_required = item["impact"]["baseMetricV2"].get("userInteractionRequired", None)
             else:
                 record_cvss_v2_version = None
                 record_cvss_v2_vector_string = None

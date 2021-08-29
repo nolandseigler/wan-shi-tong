@@ -1,8 +1,9 @@
 import datetime
 
+from env_vars import db_uri
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from env_vars import db_uri
+import pandas as pd
 
 db = SQLAlchemy()
 
@@ -158,7 +159,50 @@ class CVE(db.Model):
 
         return last_modified_record
 
+    @staticmethod
+    def get_entities_dict():
+        return {
+            "id": CVE.id,
+            "cve_id": CVE.cve_id,
+            "description": CVE.description,
+            "cvss_v3_version": CVE.cvss_v3_version,
+            "cvss_v3_vector_string": CVE.cvss_v3_vector_string,
+            "cvss_v3_attack_vector": CVE.cvss_v3_attack_vector,
+            "cvss_v3_attack_complexity": CVE.cvss_v3_attack_complexity,
+            "cvss_v3_privileges_required": CVE.cvss_v3_privileges_required,
+            "cvss_v3_user_interaction": CVE.cvss_v3_user_interaction,
+            "cvss_v3_scope": CVE.cvss_v3_scope,
+            "cvss_v3_confidentiality_impact": CVE.cvss_v3_confidentiality_impact,
+            "cvss_v3_integrity_impact": CVE.cvss_v3_integrity_impact,
+            "cvss_v3_availability_impact": CVE.cvss_v3_availability_impact,
+            "cvss_v3_base_score": CVE.cvss_v3_base_score,
+            "cvss_v3_base_severity": CVE.cvss_v3_base_severity,
+            "base_metric_v3_exploitability_score": CVE.base_metric_v3_exploitability_score,
+            "base_metric_v3_impact_score": CVE.base_metric_v3_impact_score,
+            "cvss_v2_version": CVE.cvss_v2_version,
+            "cvss_v2_vector_string": CVE.cvss_v2_vector_string,
+            "cvss_v2_access_vector": CVE.cvss_v2_access_vector,
+            "cvss_v2_access_complexity": CVE.cvss_v2_access_complexity,
+            "cvss_v2_authentication": CVE.cvss_v2_authentication,
+            "cvss_v2_confidentiality_impact": CVE.cvss_v2_confidentiality_impact,
+            "cvss_v2_integrity_impact": CVE.cvss_v2_integrity_impact,
+            "cvss_v2_availability_impact": CVE.cvss_v2_availability_impact,
+            "cvss_v2_base_score": CVE.cvss_v2_base_score,
+            "base_metric_v2_severity": CVE.base_metric_v2_severity,
+            "base_metric_v2_exploitability_score": CVE.base_metric_v2_exploitability_score,
+            "base_metric_v2_impact_score": CVE.base_metric_v2_impact_score,
+            "base_metric_v2_obtain_all_privilege": CVE.base_metric_v2_obtain_all_privilege,
+            "base_metric_v2_obtain_user_privilege": CVE.base_metric_v2_obtain_user_privilege,
+            "base_metric_v2_obtain_other_privilege": CVE.base_metric_v2_obtain_other_privilege,
+            "base_metric_v2_user_interaction_required": CVE.base_metric_v2_user_interaction_required,
+            "published_date": CVE.published_date,
+            "last_modified_date": CVE.last_modified_date,
+            "full_cve_json": CVE.full_cve_json,
+            "record_creation_date": CVE.record_creation_date,
+        }
 
+
+    
     def __repr__(self):
         return '<CVE %r>' % self.cve_id
 
@@ -203,3 +247,26 @@ class CPE_Match(db.Model):
     def __repr__(self):
         return '<CPE_Match %r>' % self.cpe_23_uri
 
+
+
+
+def get_cve_query_df_with_columns(col_names_list=None):
+    """
+    Using col_names_list to create an entities list create a SQLAlchemy query statement.
+    Uses the paramaterized query statement with pandas read_sql to return a dataframe with query result. 
+    """
+    entities_dict = CVE.get_entities_dict()
+    if col_names_list is None:
+        entities_list = entities_dict.values()
+    else:
+        entities_list = [entities_dict[col_name] for col_name in col_names_list]
+
+    query_statement = CVE.query.order_by(CVE.published_date.desc()).with_entities(*entities_list).statement
+
+    return pd.read_sql(query_statement, db.engine)
+
+def get_cvss_v3_cols():
+    return [key for key in CVE.get_entities_dict().keys() if "v2" not in key]
+
+def get_cvss_v2_cols():
+    return [key for key in CVE.get_entities_dict().keys() if "v3" not in key]
