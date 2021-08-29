@@ -12,5 +12,6 @@ if __name__ == "__main__":
     # make sure db has tables
     init_db()
     sleep(2)
+    
     register_init_flow()
     register_update_flow()
