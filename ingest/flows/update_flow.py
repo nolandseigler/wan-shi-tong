@@ -6,6 +6,7 @@ import prefect
 from prefect.schedules import IntervalSchedule
 from prefect import task, Flow
 
+from db.database import init_db
 from env_vars import prefect_project_name
 from ingest.nvd_cve_data_ingest import ensure_cve_modified_feed_is_updated
 
@@ -18,6 +19,7 @@ schedule = IntervalSchedule(
 @task
 def update_task():
     app = Flask(__name__)
+    init_db(app)
     with app.app_context():
         logger = prefect.context.get("logger")
         logger.info("Checking for updates and writing any new records.")
@@ -26,4 +28,4 @@ def update_task():
 def register_update_flow():
     flow = Flow("update_task", tasks=[update_task])
         
-    flow.register(project_name=prefect_project_name, idempotency_key=flow.serialized_hash())
+    flow.register(project_name=prefect_project_name)
