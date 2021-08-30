@@ -2,6 +2,7 @@ import datetime
 import json
 import os
 from pathlib import Path
+
 # import pytz
 import requests
 from requests.exceptions import HTTPError
@@ -21,17 +22,22 @@ Steps:
 4. Delete the ZIP files.
 """
 
+
 def download_cpe_match_json_zip():
     """
     Data is from NIST National Vulnerability Database
     Download format is .zip
     https://nvd.nist.gov/feeds/json/cpematch/1.0/nvdcpematch-1.0.json.zip
     """
-    download_url = "https://nvd.nist.gov/feeds/json/cpematch/1.0/nvdcpematch-1.0.json.zip"
-    
+    download_url = (
+        "https://nvd.nist.gov/feeds/json/cpematch/1.0/nvdcpematch-1.0.json.zip"
+    )
+
     # Make cve data download dir if not exists
     if not cpe_data_dir.is_dir():
-        print(f"'nvd_cve_data directory' at {cpe_data_dir} is not present.\n Commencing full cpe zip download.")
+        print(
+            f"'nvd_cve_data directory' at {cpe_data_dir} is not present.\n Commencing full cpe zip download."
+        )
         os.mkdir(cpe_data_dir)
 
     zip_file_name = "nvdcpematch-1.0.json.zip"
@@ -43,7 +49,9 @@ def download_cpe_match_json_zip():
         response = requests.get(download_url, allow_redirects=True)
         open(f"{zip_file_path}", "wb").write(response.content)
     else:
-        print(f"'{download_url}' has already been downloaded.\n File is located at '{zip_file_path}'")
+        print(
+            f"'{download_url}' has already been downloaded.\n File is located at '{zip_file_path}'"
+        )
 
     print("Zip file download complete.")
 
@@ -55,10 +63,12 @@ def download_cpe_dictionary_xml_zip():
     https://nvd.nist.gov/feeds/xml/cpe/dictionary/official-cpe-dictionary_v2.3.xml.zip
     """
     download_url = "https://nvd.nist.gov/feeds/xml/cpe/dictionary/official-cpe-dictionary_v2.3.xml.zip"
-    
+
     # Make cve data download dir if not exists
     if not cpe_data_dir.is_dir():
-        print(f"'nvd_cve_data directory' at {cpe_data_dir} is not present.\n Commencing full cpe zip download.")
+        print(
+            f"'nvd_cve_data directory' at {cpe_data_dir} is not present.\n Commencing full cpe zip download."
+        )
         os.mkdir(cpe_data_dir)
 
     zip_file_name = "official-cpe-dictionary_v2.3.xml.zip"
@@ -70,17 +80,19 @@ def download_cpe_dictionary_xml_zip():
         response = requests.get(download_url, allow_redirects=True)
         open(f"{zip_file_path}", "wb").write(response.content)
     else:
-        print(f"'{download_url}' has already been downloaded.\n File is located at '{zip_file_path}'")
+        print(
+            f"'{download_url}' has already been downloaded.\n File is located at '{zip_file_path}'"
+        )
 
     print("Zip file download complete.")
 
 
 def extract_zip(zip_file_path, directory_to_extract_to):
-    with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
+    with zipfile.ZipFile(zip_file_path, "r") as zip_ref:
         zip_ref.extractall(directory_to_extract_to)
     unzipped_file_name_str = str(zip_file_path).replace(".zip", "")
     return Path(unzipped_file_name_str)
-    
+
 
 def write_cpe_match_json_to_db(cpe_match_json_zip_file_path):
     """
@@ -101,11 +113,12 @@ def write_cpe_match_json_to_db(cpe_match_json_zip_file_path):
         cpe_match_to_write = CPE_Match(
             cpe_23_uri=match_object["cpe23Uri"],
             cpe_name=cpe_name,
-            full_cpe_match_json=match_object
+            full_cpe_match_json=match_object,
         )
         cpe_match_to_write.save()
 
     os.remove(unzipped_file_path)
+
 
 # def write_all_cve_json_zip_to_db():
 #     """
@@ -142,7 +155,7 @@ def write_cpe_match_json_to_db(cpe_match_json_zip_file_path):
 #         - If lastModifedDate is more recent than our local files last mtime then return True
 #         - Else return False
 
-#     Download url for meta file: 
+#     Download url for meta file:
 #     https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-modified.meta
 
 #     Output: bool
@@ -209,9 +222,3 @@ def write_cpe_match_json_to_db(cpe_match_json_zip_file_path):
 #         write_cve_json_to_db(zip_file_path)
 #     else:
 #         print("CVE modified feed has not been updated since last download.")
-
-
-
-
-
-

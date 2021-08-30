@@ -2,16 +2,16 @@ from dash import Dash
 from wan_shi_tong.dash_layout import dash_route_layout
 from wan_shi_tong.dash_callbacks import register_dash_callbacks
 
+
 def register_dash(flask_app_name, flask_app):
-    
+
     dash_route = Dash(
         flask_app_name,
         server=flask_app,
-        external_stylesheets=["https://codepen.io/chriddyp/pen/bWLwgP.css"]
+        external_stylesheets=["https://codepen.io/chriddyp/pen/bWLwgP.css"],
     )
     dash_route.layout = dash_route_layout
     register_dash_callbacks(dash_route)
-
 
     """
     What do we want to do?

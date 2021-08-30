@@ -134,3 +134,4 @@ dmypy.json
 .vscode/
 .env-no-git
 cve_data/
+dev_data_cve_table.csv

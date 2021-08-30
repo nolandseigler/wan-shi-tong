@@ -1,4 +1,3 @@
-
 from datetime import timedelta, datetime
 
 from flask import Flask
@@ -12,9 +11,9 @@ from ingest.nvd_cve_data_ingest import ensure_cve_modified_feed_is_updated
 
 
 schedule = IntervalSchedule(
-    start_date=datetime.utcnow() + timedelta(hours=12),
-    interval=timedelta(hours=12),
+    start_date=datetime.utcnow() + timedelta(hours=12), interval=timedelta(hours=12),
 )
+
 
 @task
 def update_task():
@@ -25,7 +24,8 @@ def update_task():
         logger.info("Checking for updates and writing any new records.")
         ensure_cve_modified_feed_is_updated()
 
+
 def register_update_flow():
     flow = Flow("update_task", tasks=[update_task])
-        
+
     flow.register(project_name=prefect_project_name)

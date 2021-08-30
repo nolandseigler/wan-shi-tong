@@ -2,6 +2,7 @@ import prefect
 
 from env_vars import prefect_project_name
 
+
 def ensure_project_exists():
     client = prefect.Client()
 
