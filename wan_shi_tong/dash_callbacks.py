@@ -22,9 +22,10 @@ px_box_fig_objs = {}
 
 # create all of the figures on app creation. This means stale data for now but at the moment the app crashes when year > 2015
 for pub_date_year in cve_cvss_v3_df["published_date"].dt.year.unique():
+    # TODO: Dont nest the for loops.
     for pub_date_month in cve_cvss_v3_df["published_date"].dt.month.unique():
         filtered_df = cve_cvss_v3_df.loc[(cve_cvss_v3_df["published_date"].dt.year == pub_date_year) & (cve_cvss_v3_df["published_date"].dt.month == pub_date_month)]
-        figure = px.box(filtered_df, x="date_published", y="cvss_v3_base_score")
+        figure = px.box(filtered_df, x="date_published", y="cvss_v3_base_score", points="all")
         figure.update_layout(transition_duration=500)
         px_box_fig_objs[f"{pub_date_year}-{pub_date_month}"] = figure
 

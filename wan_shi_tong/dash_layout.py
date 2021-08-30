@@ -10,7 +10,7 @@ dash_route_layout = html.Div([
         id="month-slider",
         min=df["published_date"].dt.month.min(),
         max=df["published_date"].dt.month.max(),
-        value=df["published_date"].dt.month.max(),
+        value=df["published_date"].dt.month.min(),
         marks={str(month): str(month) for month in df["published_date"].dt.month.unique()},
         step=None
     ),
